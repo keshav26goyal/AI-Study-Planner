@@ -1,0 +1,1452 @@
+{
+  "name": "AI_study_planner",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        -96
+      ],
+      "id": "011d2aab-b038-4b43-af28-6e32e282737f",
+      "name": "Telegram Trigger",
+      "webhookId": "521f0809-8397-4317-84ec-c38b8e9ae3bb",
+      "alwaysOutputData": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "dUl4ftcqOhxvLb4T",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0405f192-8f1d-497a-a83f-212a28679484",
+              "name": "receivedText",
+              "value": "={{$json.message.text}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -640,
+        -96
+      ],
+      "id": "4e96e5b0-67f5-406d-bbca-2fc0adc7995b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "ADD_TASKS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "7d1d145a-d3ac-47fd-b58e-35f4d1de6006"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d8e58581-29c0-41ab-85bb-cb0dbbcc29df",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "DAILY_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5d8c6029-9cae-44d4-9ff9-eb44415adeff",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "REASON_RESPONSE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e517ab77-c250-4bfd-8b64-7177e0dc8100",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "INIT_PLAN",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -144
+      ],
+      "id": "afdf02fb-60b1-4739-8f1c-f9983fea131d",
+      "name": "Switch",
+      "alwaysOutputData": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an AI assistant that extracts structured study tasks.\n\nConvert the user's message into a JSON array.\n\nRules:\n- Extract subject and hours\n- Hours must be a number\n- Output ONLY valid JSON\n- Do not explain anything\n\nOutput format:\n[\n  {\n    \"subject\": \"Math\",\n    \"hours\": 2\n  }\n]\n"
+            },
+            {
+              "content": "=Extract structured study tasks from the message.\n\nUser message:\n{{ $json.receivedText }}\n\nReturn ONLY valid JSON:\n{\n  \"tasks\": [\n    {\n      \"subject\": \"DBMS\",\n      \"hours\": 2\n    }\n  ]\n}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        -784
+      ],
+      "id": "b4f51858-e093-47a3-b827-d34704136555",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "unk6MXAjD5cYJpKg",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "tasks",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        -800
+      ],
+      "id": "d542377d-8507-4091-b30d-7e022c229208",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI output text\nconst raw = $json.output[0].content[0].text;\nconst parsed = JSON.parse(raw);\n\n// ALWAYS get chat_id from Telegram Trigger\nconst chatId = $('Telegram Trigger').first().json.message.from.id\nconst receivedText = $('Edit Fields').first().json.receivedText\n\nreturn [\n  {\n    json: {\n      ...$json,            // keep Intent Classifier output\n      receivedText,\n      chat_id: chatId,     // ✅ guaranteed\n      intent: parsed.intent,\n      confidence: parsed.confidence\n      \n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -80
+      ],
+      "id": "4aaf0cc2-fb4f-4aad-a5d9-9fb7d382c1f3",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI output text (string)\nconst raw = $json.output[0].content[0].text;\n\n// Parse JSON safely\nconst parsed = JSON.parse(raw);\n\n// ALWAYS pull chat_id from Telegram Trigger\nconst chatId = $('Telegram Trigger').first().json.message.chat.id;\n\n// Preserve previous data + attach tasks\nreturn [\n  {\n    json: {\n      ...$json,\n      chat_id: chatId,\n      tasks: parsed.tasks\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        -784
+      ],
+      "id": "27dffeeb-55e2-4685-bdb6-ff4b1df7a623",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0",
+          "mode": "list",
+          "cachedResultName": "Study Plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now.toISODate() }}",
+            "Subject": "={{ $json.tasks.subject }}",
+            "Status": "planned",
+            "Created By": "Telegram",
+            "Notes": "Initial plan created by AI",
+            "Planned Hours": "={{ $json.tasks.hours }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Planned Hours",
+              "displayName": "Planned Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Actual Hours",
+              "displayName": "Actual Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created By",
+              "displayName": "Created By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        -800
+      ],
+      "id": "dfaaa78d-e62e-40e9-9c9a-cd224a11a98e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dWOGzGyyrSwUWP6v",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.chat_id }}",
+        "message": "=Here is your study plan 👇\n\n{{ $json.tasks.map(t => `• ${t.subject} — ${t.hours} hours`).join('\\n') }}\n\nPlease confirm by clicking below 👇\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        -784
+      ],
+      "id": "96cbab4b-8bb4-42d2-b2d4-ce7dae897978",
+      "name": "Ask User Confirmation",
+      "webhookId": "4ba037c4-3952-4020-a491-a48a6287e50e",
+      "credentials": {
+        "telegramApi": {
+          "id": "dUl4ftcqOhxvLb4T",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.approved }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "dd7c23ad-4aeb-48cc-8439-00092735f151"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "47cbcb62-f2e2-4189-b4e5-d3e0d735d134",
+                    "leftValue": "={{ $json.data.approved }}\n",
+                    "rightValue": null,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1088,
+        -784
+      ],
+      "id": "88390625-f1a1-4990-b75a-6e66fd56c561",
+      "name": "User Confirmation Router"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat.id }}\n",
+        "text": "❌ No problem. I did not save the plan.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        -624
+      ],
+      "id": "c323cf87-d343-44ac-bdd4-88587c759398",
+      "name": "Send a text message",
+      "webhookId": "59f72166-bd47-4f12-95a6-b171aeaf192d",
+      "credentials": {
+        "telegramApi": {
+          "id": "dUl4ftcqOhxvLb4T",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are an AI intent classification agent for a study planner.\n\nYour task:\nClassify the user's message into ONE of the following intents:\n\n1. INIT_PLAN – user wants to start planning studies\n2. ADD_TASKS – user provides subjects, hours, deadlines\n3. DAILY_PROGRESS – user reports what they studied today\n4. ASK_PLAN – user asks what to study next\n5. GENERAL_QUERY – anything else\n6. REASON_RESPONSE – user is giving reason for incomplete study\n\nExamples:\n- \"I was tired\"\n- \"Had exam\"\n- \"Not feeling well\"\n- \"Busy schedule\"\n\nReturn ONLY valid JSON in this format:\n{\n  \"intent\": \"<ONE_INTENT>\",\n  \"confidence\": 0.0-1.0\n}\n\nUser message:{{ $json.receivedText }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -480,
+        -96
+      ],
+      "id": "64784d94-a714-49ca-a86e-15c269a797df",
+      "name": "Intent Classifier",
+      "credentials": {
+        "openAiApi": {
+          "id": "unk6MXAjD5cYJpKg",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get tasks from the earlier Code node (before confirmation)\nconst tasks = $('Code in JavaScript1').first().json.tasks;\nconst chatId = $('Code in JavaScript1').first().json.chat_id;\nconst receivedText = $('Code in JavaScript1').first().json.receivedText;\n\nreturn [\n  {\n    json: {\n      tasks,\n      chat_id: chatId,\n      receivedText\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        -800
+      ],
+      "id": "e73fca70-3254-4691-9aee-9c9fd6b1ebf7",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Extract study progress from the user message.\n\nReturn JSON:\n{\n  \"subject\": \"<subject_from_user>\",\n  \"hours\": <number>,\n  \"type\": \"progress\" or \"completed\"\n}\n\nRules:\n- Extract subject dynamically from user message\n- Extract hours if mentioned\n- If user says \"completed\" → type = \"completed\"\n- If hours mentioned → type = \"progress\"\n\nUser message:\n{{ $('Code in JavaScript').item.json.receivedText }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        288,
+        -336
+      ],
+      "id": "785794a1-d5ad-48e0-89ef-8bd7928bf555",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "unk6MXAjD5cYJpKg",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output[0].content[0].text;\nconst parsed = JSON.parse(raw);\n\nreturn [\n  {\n    json: {\n      subject: parsed.subject,\n      hours: parsed.hours || 0,\n      type: parsed.type,\n      chat_id: $('Telegram Trigger').first().json.message.chat.id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        -336
+      ],
+      "id": "8cf81af7-89af-4d22-8a34-a663cad0a2ce",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0",
+          "mode": "list",
+          "cachedResultName": "Study Plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Subject",
+              "lookupValue": "={{ $json.subject }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        -336
+      ],
+      "id": "bb6f1549-8abd-43db-95e5-ade2fd7c21b6",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dWOGzGyyrSwUWP6v",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const planned = Number($json['Planned Hours']);\nconst actual = Number($('Code in JavaScript3').item.json.hours);\nconst type = $('Code in JavaScript3').first().json.type;\n\nlet action = \"\";\nlet remark = \"\";\n\nif (type === \"completed\") {\n  action = \"complete\";\n  remark = \"Marked as completed by user\";\n}\n\nelse if (type === \"progress\") {\n  \n  if (actual >= planned) {\n    action = \"complete\";\n    remark = \"Completed with sufficient hours\";\n  } \n  \n  else {\n    action = \"ask_reason\";\n    remark = \"Studied less than planned\";\n  }\n}\n\nreturn [\n  {\n    json: {\n      ...$json,\n      planned,\n      actual,\n      action,\n      remark\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        -336
+      ],
+      "id": "25fc341f-bcd5-4285-b19b-512424d211c1",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "013a1bb4-457f-40a3-939f-7754dace813a",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "ask_reason",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1280,
+        -336
+      ],
+      "id": "761113eb-fdb3-458d-bbff-d9d5729e87ed",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $('Code in JavaScript').first().json.receivedText;\n\n// Example: \"Reason for DBMS: I was tired\"\n\nconst parts = text.split(\":\");\n\nconst subject = parts[0].replace(\"Reason for\", \"\").trim();\nconst reason = parts[1]?.trim() || \"No reason provided\";\n\nreturn [\n  {\n    json: {\n      subject,\n      reason,\n      chat_id: $('Code in JavaScript').first().json.chat_id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        48
+      ],
+      "id": "99551310-73d9-409c-9d3a-2b14c11ff39a",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript3').item.json.chat_id }}",
+        "text": "=⚠️ You studied less than planned  📘 Subject:{{ $('Code in JavaScript4').item.json.Subject }}  Please reply like: Reason for {{ $('Code in JavaScript4').item.json.Subject }}: <your reason>",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        -352
+      ],
+      "id": "6d8e258c-56ca-49c8-bd1b-45042e48d03c",
+      "name": "Send a text message1",
+      "webhookId": "70c0b4c9-0470-43dc-aa22-5bf85994d2ff",
+      "credentials": {
+        "telegramApi": {
+          "id": "dUl4ftcqOhxvLb4T",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0",
+          "mode": "list",
+          "cachedResultName": "Study Plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Status": "={{ $json.action === \"complete\" ? \"completed\" : \"planned\" }}",
+            "Actual Hours": "={{ $json.actual }}",
+            "Notes": "={{ $json.remark }} "
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Planned Hours",
+              "displayName": "Planned Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Actual Hours",
+              "displayName": "Actual Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created By",
+              "displayName": "Created By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1552,
+        -96
+      ],
+      "id": "e48d508b-2938-40a9-a01f-0276e8ea5408",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dWOGzGyyrSwUWP6v",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript3').item.json.chat_id }}",
+        "text": "=✅ Update successful!  📘 Subject:{{ $('If').item.json.Subject }}   📊 Status: {{ $json.action === \"complete\" ? \"Completed\" : \"Updated\" }} ⏱ Actual Hours:{{ $('If').item.json.actual }} 📝 Note: {{ $('If').item.json.remark }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        -96
+      ],
+      "id": "115a92a8-4778-45db-8db7-9651672465dd",
+      "name": "Send a text message2",
+      "webhookId": "ab0d2e3c-5392-43c6-9bb5-0bdf1d2966b3",
+      "credentials": {
+        "telegramApi": {
+          "id": "dUl4ftcqOhxvLb4T",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0",
+          "mode": "list",
+          "cachedResultName": "Study Plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Actual Hours": "={{ $json.actual }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Planned Hours",
+              "displayName": "Planned Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Actual Hours",
+              "displayName": "Actual Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created By",
+              "displayName": "Created By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1552,
+        -352
+      ],
+      "id": "5f51c9dd-6dba-4779-850f-4ec94ad0b8df",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dWOGzGyyrSwUWP6v",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0",
+          "mode": "list",
+          "cachedResultName": "Study Plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Date": "={{ $json.Date }}",
+            "Created By": "={{ $json['Created By'] }}",
+            "Notes": "={{ $('Code in JavaScript5').item.json.reason }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Planned Hours",
+              "displayName": "Planned Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Actual Hours",
+              "displayName": "Actual Hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created By",
+              "displayName": "Created By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        784,
+        48
+      ],
+      "id": "0b4d70d9-9854-451b-a1fc-daef78e7b28c",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dWOGzGyyrSwUWP6v",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0",
+          "mode": "list",
+          "cachedResultName": "Study Plan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kpPFqs37jJQCKNU9anr5StjLesfUjoxuRdc1iox-FQ0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Subject",
+              "lookupValue": "={{ $json.subject }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        512,
+        48
+      ],
+      "id": "e2abf516-62f2-4ee3-abf1-23eb5e95fcd5",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dWOGzGyyrSwUWP6v",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Code in JavaScript5').item.json.chat_id }}",
+        "text": "=✅ Study progress updated!  📚 Subject: {{ $('Get row(s) in sheet').item.json.Subject }} ⏱ Actual Hours: {{ $('Get row(s) in sheet').item.json['Actual Hours'] || $json.hours }} 📝 Status: Updated 💬 Remark: {{ $('Get row(s) in sheet').item.json.Notes }} Keep going! 🚀",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        48
+      ],
+      "id": "0f6ebbf3-68f5-4ab1-bb4c-36b2d4180c4d",
+      "name": "Send a text message3",
+      "webhookId": "3be90af5-30bf-4748-b57c-dd2ef309f23a",
+      "credentials": {
+        "telegramApi": {
+          "id": "dUl4ftcqOhxvLb4T",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Ask User Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask User Confirmation": {
+      "main": [
+        [
+          {
+            "node": "User Confirmation Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Confirmation Router": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Classifier": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        []
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "e4f40d4c-cf82-40d0-8dd1-9b3d4fcf28de",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ba8bee5fa971ede810ad3f73c85c170f1487bf0821abc7a04eb3109b0f396ca0"
+  },
+  "id": "A-aQplkwP8wtIe60Cp59J",
+  "tags": []
+}
